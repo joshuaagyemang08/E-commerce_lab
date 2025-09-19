@@ -26,11 +26,12 @@ $isLoggedIn = isset($_SESSION['customer_id']);
                     <a href="login/login.php" class="nav-link btn-outline">Login</a>
                     <a href="login/register.php" class="nav-link btn-primary">Register</a>
                 <?php else: ?>
-                    <!-- Show user info when logged in (for future functionality) -->
+                    <!-- Show user info when logged in - Logout button as required by assignment -->
                     <span class="welcome-message">Welcome, <?php echo htmlspecialchars($_SESSION['customer_name'] ?? 'Customer'); ?>!</span>
+                    <span class="nav-link">Role: <?php echo $_SESSION['customer_role'] == 1 ? 'Administrator' : 'Customer'; ?></span>
                     <a href="dashboard.php" class="nav-link">Dashboard</a>
                     <a href="profile.php" class="nav-link">Profile</a>
-                    <a href="login/logout.php" class="nav-link btn-outline">Logout</a>
+                    <a href="actions/logout_action.php" class="nav-link btn-outline">Logout</a>
                 <?php endif; ?>
             </div>
         </div>

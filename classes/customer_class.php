@@ -2,9 +2,9 @@
 // Create a simple database connection class first
 class Database {
     private $host = 'localhost';
-    private $db_name = 'customer_portal';  
-    private $username = 'root';            
-    private $password = '';                
+    private $db_name = 'customer_portal';  // Change this to your database name
+    private $username = 'root';            // Change this to your database username
+    private $password = '';                // Change this to your database password
     protected $conn;
 
     public function __construct() {
@@ -33,7 +33,7 @@ class Customer extends Database {
         parent::__construct();
     }
 
-    // Add customer method (as required by assignment)
+    // Add customer method (from Part 1)
     public function add_customer($full_name, $email, $password, $country, $city, $contact, $user_role = 2) {
         try {
             // Check if email already exists
@@ -66,7 +66,56 @@ class Customer extends Database {
         }
     }
 
-    // Check if email exists (for email uniqueness as required)
+    // NEW METHOD FOR PART 2: Get customer by email address (as required by assignment)
+    public function get_customer_by_email($email) {
+        try {
+            $sql = "SELECT * FROM customers WHERE email = :email";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':email', $email);
+            $stmt->execute();
+            
+            $customer = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($customer) {
+                return ['success' => true, 'customer' => $customer];
+            } else {
+                return ['success' => false, 'message' => 'Customer not found'];
+            }
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
+    // NEW METHOD FOR PART 2: Check if password matches (as required by assignment)
+    public function verify_customer_password($email, $password) {
+        try {
+            // Get customer by email
+            $customer_result = $this->get_customer_by_email($email);
+            
+            if (!$customer_result['success']) {
+                return ['success' => false, 'message' => 'Invalid email or password'];
+            }
+            
+            $customer = $customer_result['customer'];
+            
+            // Check if password matches stored password
+            if (password_verify($password, $customer['password'])) {
+                // Remove password from returned data for security
+                unset($customer['password']);
+                return [
+                    'success' => true, 
+                    'message' => 'Login successful',
+                    'customer' => $customer
+                ];
+            } else {
+                return ['success' => false, 'message' => 'Invalid email or password'];
+            }
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
+    // Check if email exists (from Part 1)
     public function email_exists($email) {
         try {
             $sql = "SELECT id FROM customers WHERE email = :email";
@@ -80,7 +129,7 @@ class Customer extends Database {
         }
     }
 
-    // Edit customer method
+    // Edit customer method (from Part 1)
     public function edit_customer($id, $full_name, $email, $country, $city, $contact) {
         try {
             $sql = "UPDATE customers SET full_name = :full_name, email = :email, 
@@ -105,7 +154,7 @@ class Customer extends Database {
         }
     }
 
-    // Delete customer method
+    // Delete customer method (from Part 1)
     public function delete_customer($id) {
         try {
             $sql = "DELETE FROM customers WHERE id = :id";
@@ -122,7 +171,7 @@ class Customer extends Database {
         }
     }
 
-    // Get customer by ID
+    // Get customer by ID (from Part 1)
     public function get_customer($id) {
         try {
             $sql = "SELECT * FROM customers WHERE id = :id";
@@ -136,7 +185,7 @@ class Customer extends Database {
         }
     }
 
-    // Get all customers
+    // Get all customers (from Part 1)
     public function get_all_customers() {
         try {
             $sql = "SELECT * FROM customers ORDER BY created_at DESC";

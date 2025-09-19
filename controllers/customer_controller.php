@@ -8,7 +8,7 @@ class CustomerController {
         $this->customer = new Customer();
     }
 
-    // Register customer controller (as required by assignment: register_customer_ctr($kwargs))
+    // Register customer controller (from Part 1)
     public function register_customer_ctr($kwargs) {
         // Validate required fields
         $required_fields = ['full_name', 'email', 'password', 'country', 'city', 'contact'];
@@ -53,7 +53,7 @@ class CustomerController {
         // Set default user role if not provided (2 for customer as per assignment)
         $user_role = isset($kwargs['user_role']) ? $kwargs['user_role'] : 2;
 
-        // Call the customer model to add the customer (invokes customer_class::add method)
+        // Call the customer model to add the customer
         return $this->customer->add_customer(
             trim($kwargs['full_name']),
             trim($kwargs['email']),
@@ -65,7 +65,32 @@ class CustomerController {
         );
     }
 
-    // Check email availability controller
+    // NEW METHOD FOR PART 2: Login customer controller (as required by assignment)
+    public function login_customer_ctr($kwargs) {
+        // Validate required fields
+        if (!isset($kwargs['email']) || empty(trim($kwargs['email']))) {
+            return ['success' => false, 'message' => 'Email is required'];
+        }
+
+        if (!isset($kwargs['password']) || empty($kwargs['password'])) {
+            return ['success' => false, 'message' => 'Password is required'];
+        }
+
+        // Validate email format
+        if (!filter_var($kwargs['email'], FILTER_VALIDATE_EMAIL)) {
+            return ['success' => false, 'message' => 'Invalid email format'];
+        }
+
+        // Call the customer model to verify login (invokes customer_class::get method as required)
+        $result = $this->customer->verify_customer_password(
+            trim($kwargs['email']),
+            $kwargs['password']
+        );
+
+        return $result;
+    }
+
+    // Check email availability controller (from Part 1)
     public function check_email_availability_ctr($email) {
         if (empty($email)) {
             return ['success' => false, 'message' => 'Email is required'];
@@ -79,7 +104,7 @@ class CustomerController {
         return ['success' => true, 'available' => !$exists];
     }
 
-    // Edit customer controller
+    // Edit customer controller (from Part 1)
     public function edit_customer_ctr($kwargs) {
         if (!isset($kwargs['id']) || empty($kwargs['id'])) {
             return ['success' => false, 'message' => 'Customer ID is required'];
@@ -95,7 +120,7 @@ class CustomerController {
         );
     }
 
-    // Delete customer controller
+    // Delete customer controller (from Part 1)
     public function delete_customer_ctr($id) {
         if (empty($id)) {
             return ['success' => false, 'message' => 'Customer ID is required'];
@@ -104,7 +129,7 @@ class CustomerController {
         return $this->customer->delete_customer($id);
     }
 
-    // Get customer controller
+    // Get customer controller (from Part 1)
     public function get_customer_ctr($id) {
         if (empty($id)) {
             return ['success' => false, 'message' => 'Customer ID is required'];
@@ -118,7 +143,7 @@ class CustomerController {
         }
     }
 
-    // Get all customers controller
+    // Get all customers controller (from Part 1)
     public function get_all_customers_ctr() {
         $customers = $this->customer->get_all_customers();
         return ['success' => true, 'customers' => $customers];
